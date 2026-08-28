@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "all_goals",
+	"version": "${version}",
+	"name": "All Goals",
+	"description": "Track progress toward completing every Draftout goal in a standalone Minecraft world.",
+	"authors": [
+		"AzHEHE"
+	],
+	"contact": {
+		"homepage": "https://github.com/AzHEHE/All-Goals-by-AzHEHE",
+		"sources": "https://github.com/AzHEHE/All-Goals-by-AzHEHE",
+		"issues": "https://github.com/AzHEHE/All-Goals-by-AzHEHE/issues"
+	},
+	"license": "All-Rights-Reserved",
+	"icon": "assets/all_goals/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.allgoals.AllGoals"
+		],
+		"client": [
+			"dev.allgoals.client.AllGoalsClient"
+		]
+	},
+	"mixins": [
+		"all_goals.mixins.json"
+	],
+	"custom": {
+		"sodium:options": {
+			"mixin.features.gui.screen": false
+		}
+	},
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"fabric-api": ">=0.145.4",
+		"minecraft": "26.1.1",
+		"java": ">=25"
+	}
+}
