@@ -21,8 +21,6 @@ public record PlayerGoalProgress(
         Map<String, Integer> counters,
         Map<String, List<String>> observations
 ) {
-    private static final String COMMAND_REVOKED_GOALS = "command_revoked_goals";
-
     private static final Codec<Set<String>> STRING_SET_CODEC = Codec.STRING.listOf().xmap(
             LinkedHashSet::new,
             ArrayList::new
@@ -69,13 +67,6 @@ public record PlayerGoalProgress(
         second.observations.forEach((key, values) ->
                 mergedObservationSets.computeIfAbsent(key, ignored -> new LinkedHashSet<>()).addAll(values));
 
-        // A completion recorded by either player wins over an old manual revoke.
-        LinkedHashSet<String> revoked = mergedObservationSets.get(COMMAND_REVOKED_GOALS);
-        if (revoked != null) {
-            revoked.removeAll(mergedCompleted);
-            if (revoked.isEmpty()) mergedObservationSets.remove(COMMAND_REVOKED_GOALS);
-        }
-
         Map<String, List<String>> mergedObservations = new LinkedHashMap<>();
         mergedObservationSets.forEach((key, values) ->
                 mergedObservations.put(key, List.copyOf(values)));
@@ -86,12 +77,8 @@ public record PlayerGoalProgress(
         return completed.contains(goalId);
     }
 
-    /**
-     * Whether normal gameplay may award this goal. Command-revoked goals stay
-     * disabled until an operator grants them again.
-     */
     public boolean canCompleteAutomatically(String goalId) {
-        return !isComplete(goalId) && !observations(COMMAND_REVOKED_GOALS).contains(goalId);
+        return !isComplete(goalId);
     }
 
     public int counter(String key) {
@@ -123,16 +110,12 @@ public record PlayerGoalProgress(
         }
 
         public void complete(String goalId) {
-            if (observationSet(COMMAND_REVOKED_GOALS).contains(goalId) || completed.contains(goalId)) return;
+            if (completed.contains(goalId)) return;
             mutableCompleted().add(goalId);
             newlyCompleted.add(goalId);
         }
 
         public void grantCompletion(String goalId) {
-            if (observationSet(COMMAND_REVOKED_GOALS).contains(goalId)) {
-                LinkedHashSet<String> revoked = mutableObservations(COMMAND_REVOKED_GOALS);
-                revoked.remove(goalId);
-            }
             complete(goalId);
         }
 
@@ -148,7 +131,6 @@ public record PlayerGoalProgress(
 
         public void revokeCompletion(String goalId) {
             uncomplete(goalId);
-            mutableObservations(COMMAND_REVOKED_GOALS).add(goalId);
         }
 
         public void setCounter(String key, int value) {
@@ -252,5 +234,6 @@ public record PlayerGoalProgress(
             observationCache.remove(key);
             return copy;
         }
+
     }
 }

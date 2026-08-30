@@ -321,7 +321,7 @@ public final class AutomaticGoalTracker {
     private static void checkDirectObtainGoals(PlayerGoalProgress.Editor progress, InventorySnapshot snapshot) {
         Map<String, Integer> inventory = snapshot.counts();
         DIRECT_OBTAIN_ITEMS.forEach((goal, item) -> {
-            if (inventory.getOrDefault(item, 0) > 0 || progress.observations("obtained_items").contains(item)) {
+            if (inventory.getOrDefault(item, 0) > 0) {
                 progress.complete(goal);
             }
         });
@@ -419,7 +419,10 @@ public final class AutomaticGoalTracker {
                 progress.observe("killed_entities", entityId);
                 if (arthropods.contains(entityId)) arthropodsKilled += kills;
                 if (undead.contains(entityId)) undeadKilled += kills;
-                if (raidMobs.contains(entityId)) raidMobsKilled.add(entityId);
+                if (raidMobs.contains(entityId)) {
+                    raidMobsKilled.add(entityId);
+                    progress.observe("killed_raid_mobs", entityId);
+                }
             }
         }
         int uniqueKilled = progress.observationCount("killed_hostile_entities");
@@ -431,7 +434,10 @@ public final class AutomaticGoalTracker {
         progress.setCounterAtLeast("undead_killed", undeadKilled);
         if (arthropodsKilled >= 20) progress.complete("KILL_20_ARTHROPOD_MOBS");
         if (undeadKilled >= 30) progress.complete("KILL_30_UNDEAD_MOBS");
-        if (raidMobsKilled.containsAll(raidMobs)) progress.complete("KILL_ALL_RAID_MOBS");
+        if (raidMobsKilled.containsAll(raidMobs)
+                || progress.observations("killed_raid_mobs").containsAll(raidMobs)) {
+            progress.complete("KILL_ALL_RAID_MOBS");
+        }
 
         SIMPLE_MINES.forEach((goal, blockId) -> {
             Block block = BuiltInRegistries.BLOCK.getValue(minecraft(blockId));

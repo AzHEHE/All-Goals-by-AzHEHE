@@ -1,5 +1,6 @@
 package dev.allgoals.mixin;
 
+import dev.allgoals.tracking.GoalActionContext;
 import dev.allgoals.tracking.GoalProgressService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,8 +19,8 @@ abstract class CarvedPumpkinBlockMixin {
             target = "Lnet/minecraft/world/entity/animal/golem/CopperGolem;spawn(Lnet/minecraft/world/level/block/WeatheringCopper$WeatherState;)V"))
     private void allGoals$copperGolemSpawned(Level level, BlockPos topPos, CallbackInfo callbackInfo) {
         if (level.isClientSide()) return;
-        ServerPlayer player = MixinContext.PUMPKIN_CARVING_PLAYER.get();
-        if (player == null) player = MixinContext.BLOCK_PLACING_PLAYER.get();
+        ServerPlayer player = GoalActionContext.pumpkinCarver();
+        if (player == null) player = GoalActionContext.blockPlacer();
         if (player != null) GoalProgressService.complete(player, Set.of("CONSTRUCT_COPPER_GOLEM"));
     }
 }

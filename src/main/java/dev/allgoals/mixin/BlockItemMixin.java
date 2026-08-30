@@ -1,5 +1,6 @@
 package dev.allgoals.mixin;
 
+import dev.allgoals.tracking.GoalActionContext;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -15,13 +16,13 @@ abstract class BlockItemMixin {
     private void allGoals$capturePlacer(BlockPlaceContext context,
                                         CallbackInfoReturnable<InteractionResult> callbackInfo) {
         if (context.getPlayer() instanceof ServerPlayer player) {
-            MixinContext.BLOCK_PLACING_PLAYER.set(player);
+            GoalActionContext.captureBlockPlacer(player);
         }
     }
 
     @Inject(method = "place", at = @At("RETURN"))
     private void allGoals$clearPlacer(BlockPlaceContext context,
                                       CallbackInfoReturnable<InteractionResult> callbackInfo) {
-        MixinContext.BLOCK_PLACING_PLAYER.remove();
+        GoalActionContext.clearBlockPlacer();
     }
 }

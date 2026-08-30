@@ -36,13 +36,15 @@ public final class PlayerGoalProgressSelfTest {
         revokeEdit.revokeCompletion("GOAL_A");
         PlayerGoalProgress revoked = revokeEdit.build();
         require(!revoked.isComplete("GOAL_A"), "Revoked completion remained complete");
-        require(!revoked.canCompleteAutomatically("GOAL_A"), "A revoked goal allowed automatic completion");
+        require(revoked.canCompleteAutomatically("GOAL_A"), "A revoked goal could not be earned again");
 
         PlayerGoalProgress.Editor automaticEdit = revoked.edit();
         automaticEdit.complete("GOAL_A");
-        require(automaticEdit.build() == revoked, "Automatic tracking bypassed a command revoke");
+        PlayerGoalProgress reacquired = automaticEdit.build();
+        require(reacquired.isComplete("GOAL_A"), "Gameplay did not reacquire a revoked goal");
 
-        PlayerGoalProgress.Editor grantEdit = revoked.edit();
+        PlayerGoalProgress.Editor grantEdit = reacquired.edit();
+        grantEdit.revokeCompletion("GOAL_A");
         grantEdit.grantCompletion("GOAL_A");
         PlayerGoalProgress granted = grantEdit.build();
         require(granted.isComplete("GOAL_A"), "Explicit grant did not clear a command revoke");

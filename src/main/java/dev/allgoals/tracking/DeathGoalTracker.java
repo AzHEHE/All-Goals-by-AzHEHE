@@ -39,6 +39,9 @@ public final class DeathGoalTracker {
     private static final Set<String> HOSTILE_RIDEABLES = Set.of(
             "skeleton_horse", "zombie_horse", "zombie_nautilus", "camel_husk"
     );
+    private static final Set<String> RAID_MOBS = Set.of(
+            "pillager", "vindicator", "ravager", "witch", "vex", "evoker"
+    );
     private static final Set<DyeColor> DRAFTOUT_SHEEP_COLORS = Set.of(
             DyeColor.BLUE, DyeColor.CYAN, DyeColor.GREEN, DyeColor.LIGHT_BLUE, DyeColor.LIME,
             DyeColor.MAGENTA, DyeColor.ORANGE, DyeColor.PURPLE, DyeColor.RED, DyeColor.YELLOW
@@ -91,6 +94,10 @@ public final class DeathGoalTracker {
                 if (unique >= 10) progress.complete("KILL_10_UNIQUE_HOSTILE_MOBS");
                 if (unique >= 13) progress.complete("KILL_13_UNIQUE_HOSTILE_MOBS");
                 if (unique >= 15) progress.complete("KILL_15_UNIQUE_HOSTILE_MOBS");
+            }
+            if (RAID_MOBS.contains(victimId)
+                    && progress.observe("killed_raid_mobs", victimId) >= RAID_MOBS.size()) {
+                progress.complete("KILL_ALL_RAID_MOBS");
             }
             int mobsKilled = progress.addToCounter("mobs_killed", 1);
             if (mobsKilled >= 100) progress.complete("KILL_100_MOBS");

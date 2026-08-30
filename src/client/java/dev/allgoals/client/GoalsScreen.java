@@ -86,7 +86,7 @@ public final class GoalsScreen extends Screen {
             "SPY_25_UNIQUE_MOBS", "EAT_25_UNIQUE_FOOD", "BREED_8_UNIQUE_ANIMALS",
             "KILL_15_UNIQUE_HOSTILE_MOBS", "COMPOST_7_UNIQUE_FOODS", "CRAFT_100_UNIQUE_ITEMS",
             "EAT_ALL_SOUPS", "KILL_30_UNDEAD_MOBS", "KILL_20_ARTHROPOD_MOBS",
-            "GET_6_STATUS_EFFECTS_AT_ONCE", "VISIT_ALL_CAVE_BIOMES", "TURN_GHAST_UPSIDE_DOWN"
+            "KILL_ALL_RAID_MOBS", "VISIT_ALL_CAVE_BIOMES", "TURN_GHAST_UPSIDE_DOWN"
     );
 
     private final Map<GoalCategory, List<GoalNode>> layouts = new EnumMap<>(GoalCategory.class);
@@ -424,6 +424,8 @@ public final class GoalsScreen extends Screen {
         String key;
         if (goal.sourceId().matches("KILL_(7|10|13|15)_UNIQUE_HOSTILE_MOBS")) {
             key = "killed_hostile_entities";
+        } else if (goal.sourceId().equals("KILL_ALL_RAID_MOBS")) {
+            key = "killed_raid_mobs";
         } else if (goal.sourceId().matches("SPY_(10|15|20|25)_UNIQUE_MOBS")) {
             key = "spied_entities";
         } else if (goal.sourceId().matches("BREED_(4|6|8)_UNIQUE_ANIMALS")) {
@@ -448,6 +450,7 @@ public final class GoalsScreen extends Screen {
 
     private void drawGoalAmount(GuiGraphicsExtractor graphics, GoalDefinition goal, int x, int y) {
         String amount = switch (goal.sourceId()) {
+            case "KILL_ALL_RAID_MOBS" -> "6";
             case "SPY_10_UNIQUE_MOBS" -> "10";
             case "SPY_20_UNIQUE_MOBS", "KILL_20_ARTHROPOD_MOBS" -> "20";
             case "SPY_25_UNIQUE_MOBS" -> "25";
@@ -784,6 +787,7 @@ public final class GoalsScreen extends Screen {
             case "KILL_10_UNIQUE_HOSTILE_MOBS" -> "Hostile mobs killed: " + count(progress, "killed_hostile_entities", 10);
             case "KILL_13_UNIQUE_HOSTILE_MOBS" -> "Hostile mobs killed: " + count(progress, "killed_hostile_entities", 13);
             case "KILL_15_UNIQUE_HOSTILE_MOBS" -> "Hostile mobs killed: " + count(progress, "killed_hostile_entities", 15);
+            case "KILL_ALL_RAID_MOBS" -> "Raid mobs killed: " + count(progress, "killed_raid_mobs", 6);
             case "KILL_20_ARTHROPOD_MOBS" -> Math.min(20, progress.counter("arthropods_killed")) + "/20 killed";
             case "KILL_30_UNDEAD_MOBS" -> Math.min(30, progress.counter("undead_killed")) + "/30 killed";
             case "SPY_10_UNIQUE_MOBS" -> "Mobs spied on: " + count(progress, "spied_entities", 10);

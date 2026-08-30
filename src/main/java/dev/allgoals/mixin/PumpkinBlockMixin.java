@@ -1,5 +1,6 @@
 package dev.allgoals.mixin;
 
+import dev.allgoals.tracking.GoalActionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -23,7 +24,7 @@ abstract class PumpkinBlockMixin {
                                         Player player, InteractionHand hand, BlockHitResult hit,
                                         CallbackInfoReturnable<InteractionResult> callbackInfo) {
         if (!level.isClientSide() && stack.is(Items.SHEARS) && player instanceof ServerPlayer serverPlayer) {
-            MixinContext.PUMPKIN_CARVING_PLAYER.set(serverPlayer);
+            GoalActionContext.capturePumpkinCarver(serverPlayer);
         }
     }
 
@@ -31,6 +32,6 @@ abstract class PumpkinBlockMixin {
     private void allGoals$clearCarver(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                       Player player, InteractionHand hand, BlockHitResult hit,
                                       CallbackInfoReturnable<InteractionResult> callbackInfo) {
-        MixinContext.PUMPKIN_CARVING_PLAYER.remove();
+        GoalActionContext.clearPumpkinCarver();
     }
 }
