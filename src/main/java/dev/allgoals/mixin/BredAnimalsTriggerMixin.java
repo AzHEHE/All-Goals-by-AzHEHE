@@ -15,6 +15,6 @@ abstract class BredAnimalsTriggerMixin {
     @Inject(method = "trigger", at = @At("HEAD"))
     private void allGoals$recordBreed(ServerPlayer player, Animal parent, Animal partner,
                                       AgeableMob child, CallbackInfo callbackInfo) {
-        CriteriaGoalTracker.onBreed(player, parent);
+        CriteriaGoalTracker.onBreed(player, parent, child);
     }
 }

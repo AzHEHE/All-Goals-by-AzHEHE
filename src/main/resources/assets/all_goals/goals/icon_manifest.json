@@ -3,8 +3,8 @@
   "namespace": "all_goals",
   "source": "https://draftoutmc.com/wiki",
   "archivedAt": "2026-08-22T14:19:27+08:00",
-  "goalCount": 285,
-  "iconCount": 475,
+  "goalCount": 289,
+  "iconCount": 479,
   "goals": [
     {
       "goalId": "BREAK_ANY_ARMOR",
@@ -907,6 +907,24 @@
       ]
     },
     {
+      "goalId": "DIE_TO_TRIDENT",
+      "name": "Die to Trident",
+      "userAdded": false,
+      "activeOnWiki": true,
+      "rotating": false,
+      "rotationPeriodMs": null,
+      "icons": [
+        {
+          "variant": null,
+          "label": "Die to Trident",
+          "texture": "all_goals:textures/goals/die_to_trident.png",
+          "width": 256,
+          "height": 256,
+          "sha256": "e088f678b07713550a62df4689479921ecfce7afb94f476d59730041446d5b20"
+        }
+      ]
+    },
+    {
       "goalId": "DIE_TO_WARDEN",
       "name": "Die to Warden",
       "userAdded": false,
@@ -1633,6 +1651,24 @@
           "width": 256,
           "height": 256,
           "sha256": "e0d39336a6b5f69bf660499b92d1790756e85635737af9822ca123a7f3acd617"
+        }
+      ]
+    },
+    {
+      "goalId": "GET_LEVITATION_STATUS_EFFECT",
+      "name": "Get Levitation",
+      "userAdded": false,
+      "activeOnWiki": true,
+      "rotating": false,
+      "rotationPeriodMs": null,
+      "icons": [
+        {
+          "variant": null,
+          "label": "Get Levitation",
+          "texture": "all_goals:textures/goals/get_levitation_status_effect.png",
+          "width": 256,
+          "height": 256,
+          "sha256": "a9e0ab557cc586bd0ee087acd910170600b62472fd98ef5903f0a5943d486154"
         }
       ]
     },
@@ -4051,6 +4087,24 @@
       ]
     },
     {
+      "goalId": "OBTAIN_OBSERVER",
+      "name": "Obtain Observer",
+      "userAdded": false,
+      "activeOnWiki": true,
+      "rotating": false,
+      "rotationPeriodMs": null,
+      "icons": [
+        {
+          "variant": null,
+          "label": "Obtain Observer",
+          "texture": "all_goals:textures/goals/obtain_observer.png",
+          "width": 256,
+          "height": 256,
+          "sha256": "11bf87081abd415a734ad3e3b3d631880795c3115cd5c3e9291f77ff63763e18"
+        }
+      ]
+    },
+    {
       "goalId": "OBTAIN_PISTON",
       "name": "Obtain Piston",
       "userAdded": false,
@@ -4263,6 +4317,24 @@
           "width": 256,
           "height": 256,
           "sha256": "3353fba9e41d9a3dfee1f138be92beb76d1243b6ec7a438255a6921a164ea1f6"
+        }
+      ]
+    },
+    {
+      "goalId": "OBTAIN_SOUL_CAMPFIRE",
+      "name": "Obtain Soul Campfire",
+      "userAdded": false,
+      "activeOnWiki": true,
+      "rotating": false,
+      "rotationPeriodMs": null,
+      "icons": [
+        {
+          "variant": null,
+          "label": "Obtain Soul Campfire",
+          "texture": "all_goals:textures/goals/obtain_soul_campfire.png",
+          "width": 256,
+          "height": 256,
+          "sha256": "621a3c24046fa408d2bb841a9e551c3f1d2d8d0fe5a82077bee1642f36d86402"
         }
       ]
     },

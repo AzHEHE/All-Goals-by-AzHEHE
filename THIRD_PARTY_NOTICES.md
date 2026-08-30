@@ -6,6 +6,8 @@ All Goals is an unofficial, independently implemented mod inspired by Draftout.
 
 Full credit for Draftout goes to its original creators, **7rowl and Marin**, and to the Draftout team. Draftout's goal concepts, goal names, icons, and related artwork remain the work of their respective creators and owners.
 
+Official Draftout website: [draftoutmc.com](https://draftoutmc.com/)
+
 The All Goals repository contains Draftout-derived goal information and artwork under:
 
 - `src/main/resources/assets/all_goals/goals/`

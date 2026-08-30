@@ -10,7 +10,7 @@
 
 All Goals brings the goals players know and love from Draftout into one persistent, fully trackable Minecraft world. The challenge is simple: complete every available goal in a single run.
 
-The mod automatically tracks 402 goals and organises them into a custom, advancement-style goal board. Its goal pool combines current Draftout goals, goals removed since the public beta, and goals normally exclusive to Draftout lobbies.
+The mod automatically tracks 406 goals and organises them into a custom, advancement-style goal board. Its goal pool combines current Draftout goals, goals removed since the public beta, and goals normally exclusive to Draftout lobbies.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ Multiplayer requires the exact same mod version on the server and every client. 
 
 ## Features
 
-- Automatic tracking for 402 goals
+- Automatic tracking for 406 goals
 - Goals from Draftout's current, retired, and lobby-exclusive pools
 - Custom goal board with neatly organised categories
 - Customisable progress HUD with a timer and pinned goals
@@ -90,6 +90,8 @@ For any questions or bug reports, DM **@azhehe** on Discord.
 All Goals is an unofficial standalone project and is not affiliated with, endorsed by, or maintained by the Draftout team.
 
 Full credit goes to **7rowl and Marin**, the original creators of Draftout. The goal concepts, icons, and other Draftout assets used by All Goals originate from Draftout and remain the work of their respective creators.
+
+Visit the [official Draftout website](https://draftoutmc.com/) to learn more about the original mod.
 
 ## Licensing
 

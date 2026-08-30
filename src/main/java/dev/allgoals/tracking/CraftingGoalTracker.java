@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SmithingTemplateItem;
 
 public final class CraftingGoalTracker {
-    private static final String CRAFTING_RESULTS_MIGRATION = "crafting_results_v1";
+    private static final String CRAFTING_RESULTS_MIGRATION = "crafting_results_v2";
 
     private CraftingGoalTracker() {
     }
@@ -29,9 +29,11 @@ public final class CraftingGoalTracker {
                 progress.uncomplete("CRAFT_ARMOR_TRIM");
                 progress.observe("migrations", CRAFTING_RESULTS_MIGRATION);
             }
-            int before = progress.observationCount("crafted_items");
-            total[0] = progress.observe("crafted_items", itemId);
+            String playerCrafts = "crafted_items:" + player.getUUID();
+            int before = progress.observationCount(playerCrafts);
+            total[0] = progress.observe(playerCrafts, itemId);
             added[0] = total[0] > before;
+            progress.setCounterAtLeast("unique_crafts_max", total[0]);
             if (total[0] >= 20) progress.complete("CRAFT_20_UNIQUE_ITEMS");
             if (total[0] >= 50) progress.complete("CRAFT_50_UNIQUE_ITEMS");
             if (total[0] >= 100) progress.complete("CRAFT_100_UNIQUE_ITEMS");

@@ -14,10 +14,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -59,9 +57,9 @@ public final class DeathGoalTracker {
             }
         });
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamageTaken, damageTaken, blocked) ->
-                recordDamage(source, baseDamageTaken));
+                recordDealtDamage(source, baseDamageTaken));
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, damageAmount) -> {
-            recordDamage(source, damageAmount);
+            recordDealtDamage(source, damageAmount);
             if (entity instanceof ServerPlayer player && protectHardcoreGoalDeath(player, source)) {
                 return false;
             }
@@ -81,10 +79,6 @@ public final class DeathGoalTracker {
         }
         if (victimId.equals("breeze") && source.is(DamageTypes.WIND_CHARGE)) {
             goals.add("KILL_BREEZE_USING_WIND_CHARGE");
-        }
-        if (victimId.equals("pillager") && source.getDirectEntity() instanceof AbstractArrow arrow
-                && arrow.getWeaponItem().is(Items.CROSSBOW)) {
-            goals.add("KILL_PILLAGER_USING_CROSSBOW");
         }
         if (victimId.equals("ghast")) goals.add("KILL_GHAST");
         if (victimId.equals("parched")) goals.add("KILL_PARCHED");
@@ -116,7 +110,7 @@ public final class DeathGoalTracker {
                 && entity.getPassengers().stream().anyMatch(Enemy.class::isInstance);
     }
 
-    private static void recordDamage(DamageSource source, float amount) {
+    private static void recordDealtDamage(DamageSource source, float amount) {
         if (!(source.getEntity() instanceof ServerPlayer player) || amount <= 0.0F) return;
         int tenths = Math.max(1, Math.round(amount * 10.0F));
         GoalProgressService.update(player, progress -> {
@@ -143,6 +137,7 @@ public final class DeathGoalTracker {
         if (source.is(DamageTypes.FALLING_ANVIL)) goals.add("DIE_BY_ANVIL");
         if (source.is(DamageTypes.FALLING_STALACTITE)) goals.add("DIE_BY_FALLING_STALACTITE");
         if (source.is(DamageTypes.FIREWORKS)) goals.add("DIE_BY_FIREWORK");
+        if (source.is(DamageTypes.TRIDENT)) goals.add("DIE_TO_TRIDENT");
         if (source.is(DamageTypes.FALL) && fellFromVines(player)) {
             goals.add("DIE_BY_FALLING_OFF_VINE");
         }

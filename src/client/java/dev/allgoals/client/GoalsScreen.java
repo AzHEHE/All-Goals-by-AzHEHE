@@ -57,7 +57,8 @@ public final class GoalsScreen extends Screen {
             )),
             new InformationSection("Credits and Attribution", List.of(
                     "Full credit to 7rowl and Marin, the original creators of Draftout. The goal concepts, icons, and other Draftout assets used by All Goals are sourced from Draftout and are not my original work. All credit for this material belongs to the Draftout creators and team.",
-                    "All Goals is an unofficial, standalone project. It is not an official release by, or a replacement for, the Draftout team."
+                    "All Goals is an unofficial, standalone project. It is not an official release by, or a replacement for, the Draftout team.",
+                    "Official Draftout website: https://draftoutmc.com/"
             )),
             new InformationSection("Included Goals", List.of(
                     "All Goals includes goals from the current Draftout goal pool, as well as goals that have been removed since Draftout's public beta release.",
@@ -766,7 +767,7 @@ public final class GoalsScreen extends Screen {
         return switch (goal.sourceId()) {
             case "KILL_100_MOBS" -> Math.min(100, progress.counter("mobs_killed")) + "/100";
             case "DEAL_400_DAMAGE" -> Math.min(400, progress.counter("damage_dealt_tenths") / 10) + "/400 damage";
-            case "TAKE_200_DAMAGE" -> Math.min(200, progress.counter("damage_taken")) + "/200 damage";
+            case "TAKE_200_DAMAGE" -> Math.min(200, progress.counter("damage_taken_tenths") / 10) + "/200 damage";
             case "SPRINT_1_KM" -> Math.min(1000, progress.counter("sprint_cm") / 100) + "/1000 m";
             case "EAT_5_UNIQUE_FOOD" -> "Unique foods eaten: " + count(progress, "eaten_foods", 5);
             case "EAT_10_UNIQUE_FOOD" -> "Unique foods eaten: " + count(progress, "eaten_foods", 10);
@@ -776,9 +777,9 @@ public final class GoalsScreen extends Screen {
             case "COMPOST_3_UNIQUE_FOODS" -> "Unique foods composted: " + count(progress, "composted_foods", 3);
             case "COMPOST_5_UNIQUE_FOODS" -> "Unique foods composted: " + count(progress, "composted_foods", 5);
             case "COMPOST_7_UNIQUE_FOODS" -> "Unique foods composted: " + count(progress, "composted_foods", 7);
-            case "CRAFT_20_UNIQUE_ITEMS" -> "Unique crafts: " + count(progress, "crafted_items", 20);
-            case "CRAFT_50_UNIQUE_ITEMS" -> "Unique crafts: " + count(progress, "crafted_items", 50);
-            case "CRAFT_100_UNIQUE_ITEMS" -> "Unique crafts: " + count(progress, "crafted_items", 100);
+            case "CRAFT_20_UNIQUE_ITEMS" -> "Unique crafts: " + counter(progress, "unique_crafts_max", 20);
+            case "CRAFT_50_UNIQUE_ITEMS" -> "Unique crafts: " + counter(progress, "unique_crafts_max", 50);
+            case "CRAFT_100_UNIQUE_ITEMS" -> "Unique crafts: " + counter(progress, "unique_crafts_max", 100);
             case "KILL_7_UNIQUE_HOSTILE_MOBS" -> "Hostile mobs killed: " + count(progress, "killed_hostile_entities", 7);
             case "KILL_10_UNIQUE_HOSTILE_MOBS" -> "Hostile mobs killed: " + count(progress, "killed_hostile_entities", 10);
             case "KILL_13_UNIQUE_HOSTILE_MOBS" -> "Hostile mobs killed: " + count(progress, "killed_hostile_entities", 13);

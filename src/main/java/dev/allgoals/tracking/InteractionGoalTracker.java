@@ -6,7 +6,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.CandleBlock;
@@ -25,7 +24,6 @@ public final class InteractionGoalTracker {
             String item = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
             String block = BuiltInRegistries.BLOCK.getKey(context.getLevel().getBlockState(context.getClickedPos()).getBlock()).getPath();
             Set<String> goals = new LinkedHashSet<>();
-            if (item.equals("carved_pumpkin") && block.contains("copper_block")) goals.add("CONSTRUCT_COPPER_GOLEM");
             if ((item.equals("flint_and_steel") || item.equals("fire_charge"))
                     && CandleBlock.canLight(context.getLevel().getBlockState(context.getClickedPos()))) {
                 goals.add("LIGHT_CANDLE");
@@ -42,9 +40,6 @@ public final class InteractionGoalTracker {
             String item = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
             String target = entityId(entity);
             Set<String> goals = new LinkedHashSet<>();
-            if (item.equals("golden_dandelion") && entity instanceof AgeableMob ageable && ageable.isBaby()) {
-                goals.add("USE_GOLDEN_DANDELION");
-            }
             if (item.equals("name_tag") && stack.getCustomName() != null) {
                 String name = stack.getCustomName().getString();
                 if (target.equals("sheep") && name.equals("jeb_")) goals.add("NAME_SHEEP_JEB");

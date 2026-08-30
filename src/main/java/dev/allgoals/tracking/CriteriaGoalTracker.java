@@ -19,16 +19,17 @@ public final class CriteriaGoalTracker {
             Map.entry("pig", "BREED_PIG"), Map.entry("rabbit", "BREED_RABBIT"),
             Map.entry("sheep", "BREED_SHEEP"), Map.entry("strider", "BREED_STRIDER")
     );
-    private static final Map<String, String> TAME_GOALS = Map.of(
-            "cat", "TAME_CAT", "horse", "TAME_HORSE", "nautilus", "TAME_NAUTILUS",
-            "parrot", "TAME_PARROT", "wolf", "TAME_WOLF"
+    private static final Map<String, String> TAME_GOALS = Map.ofEntries(
+            Map.entry("cat", "TAME_CAT"), Map.entry("horse", "TAME_HORSE"),
+            Map.entry("zombie_horse", "TAME_HORSE"), Map.entry("nautilus", "TAME_NAUTILUS"),
+            Map.entry("parrot", "TAME_PARROT"), Map.entry("wolf", "TAME_WOLF")
     );
 
     private CriteriaGoalTracker() {
     }
 
-    public static void onBreed(ServerPlayer player, Entity parent) {
-        String entityId = entityId(parent);
+    public static void onBreed(ServerPlayer player, Entity parent, Entity child) {
+        String entityId = entityId(child != null ? child : parent);
         GoalProgressService.update(player, progress -> {
             progress.observe("bred_animals", entityId);
             String goal = BREED_GOALS.get(entityId);

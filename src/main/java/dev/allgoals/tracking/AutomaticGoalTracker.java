@@ -19,14 +19,13 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
-import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
-import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,6 +74,7 @@ public final class AutomaticGoalTracker {
             entry("OBTAIN_MOSSY_STONE_BRICK_WALL", "mossy_stone_brick_wall"),
             entry("OBTAIN_MUD_BRICK_WALL", "mud_brick_wall"),
             entry("OBTAIN_NETHERITE_SCRAP", "netherite_scrap"),
+            entry("OBTAIN_OBSERVER", "observer"),
             entry("OBTAIN_PISTON", "piston"),
             entry("OBTAIN_POWDER_SNOW_BUCKET", "powder_snow_bucket"),
             entry("OBTAIN_POWERED_RAIL", "powered_rail"),
@@ -87,6 +87,7 @@ public final class AutomaticGoalTracker {
             entry("OBTAIN_SMOOTH_BASALT", "smooth_basalt"),
             entry("OBTAIN_SMOOTH_QUARTZ_STAIRS", "smooth_quartz_stairs"),
             entry("OBTAIN_SOUL_LANTERN", "soul_lantern"),
+            entry("OBTAIN_SOUL_CAMPFIRE", "soul_campfire"),
             entry("OBTAIN_SPONGE", "sponge"),
             entry("OBTAIN_TNT", "tnt"),
             entry("OBTAIN_TINTED_GLASS", "tinted_glass"),
@@ -105,7 +106,7 @@ public final class AutomaticGoalTracker {
     );
 
     private static final Map<String, String> SIMPLE_MINES = Map.ofEntries(
-            entry("MINE_MOB_SPAWNER", "spawner"), entry("MINE_CRAFTER", "crafter"),
+            entry("MINE_CRAFTER", "crafter"),
             entry("MINE_TURTLE_EGG", "turtle_egg")
     );
 
@@ -114,6 +115,7 @@ public final class AutomaticGoalTracker {
             entry("GET_BAD_OMEN_STATUS_EFFECT", "bad_omen"),
             entry("GET_GLOWING_STATUS_EFFECT", "glowing"),
             entry("GET_JUMP_BOOST_STATUS_EFFECT", "jump_boost"),
+            entry("GET_LEVITATION_STATUS_EFFECT", "levitation"),
             entry("GET_MINING_FATIGUE_STATUS_EFFECT", "mining_fatigue"),
             entry("GET_NAUSEA_STATUS_EFFECT", "nausea"),
             entry("GET_POISON_STATUS_EFFECT", "poison"),
@@ -148,8 +150,11 @@ public final class AutomaticGoalTracker {
             "blast_furnace", "smoker", "cartography_table", "brewing_stand", "barrel", "composter",
             "fletching_table", "cauldron", "lectern", "stonecutter", "loom", "smithing_table", "grindstone"
     );
-    private static final Set<String> ARMOR_MATERIALS = Set.of(
-            "leather", "copper", "golden", "chainmail", "iron", "diamond", "netherite"
+    private static final List<List<String>> UNIQUE_ARMOR_ITEMS = List.of(
+            List.of("leather_helmet", "copper_helmet", "golden_helmet", "chainmail_helmet", "iron_helmet", "diamond_helmet"),
+            List.of("leather_chestplate", "copper_chestplate", "golden_chestplate", "chainmail_chestplate", "iron_chestplate", "diamond_chestplate"),
+            List.of("leather_leggings", "copper_leggings", "golden_leggings", "chainmail_leggings", "iron_leggings", "diamond_leggings"),
+            List.of("leather_boots", "copper_boots", "golden_boots", "chainmail_boots", "iron_boots", "diamond_boots")
     );
     private static final Map<Integer, String> DYE_COLOR_RGB = Map.ofEntries(
             Map.entry(16383998, "white"), Map.entry(16351261, "orange"), Map.entry(13061821, "magenta"),
@@ -172,7 +177,7 @@ public final class AutomaticGoalTracker {
     private static final String TOOL_SPEAR_MIGRATION = "tool_sets_include_spear_v1";
     private static final String ADVANCEMENT_COUNT_MIGRATION = "advancement_count_v2";
     private static final String WORKSTATION_ACTION_MIGRATION = "workstation_actions_v1";
-    private static final String CRAFTING_RESULTS_MIGRATION = "crafting_results_v1";
+    private static final String CRAFTING_RESULTS_MIGRATION = "crafting_results_v2";
     private static final String CAULDRON_STATS_MIGRATION = "cauldron_stats_v1";
     private static final Set<String> SPYGLASS_ADVANCEMENTS = Set.of(
             "adventure/spyglass_at_parrot", "adventure/spyglass_at_ghast", "adventure/spyglass_at_dragon"
@@ -223,7 +228,7 @@ public final class AutomaticGoalTracker {
         boolean checkedInventory = cachedInventory.checkedProgress != oldProgress;
         if (checkedInventory) {
             applyInventorySnapshot(progress, cachedInventory.snapshot);
-            checkDirectObtainGoals(progress, cachedInventory.snapshot.counts());
+            checkDirectObtainGoals(progress, cachedInventory.snapshot);
             checkInventoryCollections(progress, cachedInventory.snapshot.counts());
             checkUniqueInventory(player, progress);
         }
@@ -270,11 +275,13 @@ public final class AutomaticGoalTracker {
         Set<String> observedItems = new HashSet<>();
         boolean decoratedShield = false;
         boolean copperChest = false;
+        boolean exactStackOf64 = false;
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
             if (stack.isEmpty()) continue;
             String itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
             counts.merge(itemId, stack.getCount(), Integer::sum);
+            exactStackOf64 |= stack.getCount() == 64;
             observedItems.add(itemId);
             if (itemId.equals("shield") && stack.get(DataComponents.BASE_COLOR) != null) {
                 decoratedShield = true;
@@ -298,7 +305,8 @@ public final class AutomaticGoalTracker {
             }
             if (offhand.is(ItemTags.COPPER_CHESTS)) copperChest = true;
         }
-        return new InventorySnapshot(Map.copyOf(counts), Set.copyOf(observedItems), decoratedShield, copperChest);
+        return new InventorySnapshot(Map.copyOf(counts), Set.copyOf(observedItems), decoratedShield, copperChest,
+                exactStackOf64);
     }
 
     private static void applyInventorySnapshot(PlayerGoalProgress.Editor progress, InventorySnapshot snapshot) {
@@ -310,13 +318,14 @@ public final class AutomaticGoalTracker {
         if (snapshot.copperChest()) progress.complete("OBTAIN_COPPER_CHEST");
     }
 
-    private static void checkDirectObtainGoals(PlayerGoalProgress.Editor progress, Map<String, Integer> inventory) {
+    private static void checkDirectObtainGoals(PlayerGoalProgress.Editor progress, InventorySnapshot snapshot) {
+        Map<String, Integer> inventory = snapshot.counts();
         DIRECT_OBTAIN_ITEMS.forEach((goal, item) -> {
             if (inventory.getOrDefault(item, 0) > 0 || progress.observations("obtained_items").contains(item)) {
                 progress.complete(goal);
             }
         });
-        if (inventory.values().stream().anyMatch(count -> count >= 64)) progress.complete("OBTAIN_STACK_OF_64");
+        if (snapshot.exactStackOf64()) progress.complete("OBTAIN_STACK_OF_64");
         if (inventory.getOrDefault("arrow", 0) >= 32 || inventory.getOrDefault("spectral_arrow", 0) >= 32) {
             progress.complete("OBTAIN_32_ARROWS");
         }
@@ -371,18 +380,18 @@ public final class AutomaticGoalTracker {
         repairOldWorkstationCompletions(progress);
         int mobKills = player.getStats().getValue(Stats.CUSTOM, Stats.MOB_KILLS);
         int damageDealtTenths = player.getStats().getValue(Stats.CUSTOM, Stats.DAMAGE_DEALT);
-        int damageTaken = player.getStats().getValue(Stats.CUSTOM, Stats.DAMAGE_TAKEN) / 10;
         int sprintCm = player.getStats().getValue(Stats.CUSTOM, Stats.SPRINT_ONE_CM);
         progress.setCounterAtLeast("mobs_killed", mobKills);
         progress.setCounterAtLeast("damage_dealt_tenths", damageDealtTenths);
-        progress.setCounterAtLeast("damage_taken", damageTaken);
         progress.setCounterAtLeast("sprint_cm", sprintCm);
         if (mobKills >= 100) progress.complete("KILL_100_MOBS");
         if (progress.counter("damage_dealt_tenths") >= 4_000) progress.complete("DEAL_400_DAMAGE");
-        if (damageTaken >= 200) progress.complete("TAKE_200_DAMAGE");
         if (sprintCm >= 100_000) progress.complete("SPRINT_1_KM");
         if (player.getStats().getValue(Stats.CUSTOM, Stats.EAT_CAKE_SLICE) > 0) progress.complete("EAT_CAKE");
-        if (player.getStats().getValue(Stats.CUSTOM, Stats.TUNE_NOTEBLOCK) > 0) progress.complete("TUNE_NOTEBLOCK");
+        if (player.getStats().getValue(Stats.CUSTOM, Stats.TUNE_NOTEBLOCK) > 0
+                || player.getStats().getValue(Stats.CUSTOM, Stats.PLAY_NOTEBLOCK) > 0) {
+            progress.complete("TUNE_NOTEBLOCK");
+        }
         if (player.getStats().getValue(Stats.CUSTOM, Stats.PLAY_RECORD) > 0) progress.complete("USE_JUKEBOX");
         if (player.getStats().getValue(Stats.CUSTOM, Stats.POT_FLOWER) > 0) progress.complete("PUT_FLOWER_IN_POT");
         if (player.getStats().getValue(Stats.CUSTOM, Stats.ENCHANT_ITEM) > 0) progress.complete("USE_ENCHANTING_TABLE");
@@ -428,8 +437,9 @@ public final class AutomaticGoalTracker {
             Block block = BuiltInRegistries.BLOCK.getValue(minecraft(blockId));
             if (block != null && player.getStats().getValue(Stats.BLOCK_MINED, block) > 0) progress.complete(goal);
         });
+        if (wasEitherBlockMined(player, "spawner", "trial_spawner")) progress.complete("MINE_MOB_SPAWNER");
         int iceTypes = 0;
-        for (String id : List.of("ice", "packed_ice", "blue_ice")) {
+        for (String id : List.of("ice", "packed_ice", "blue_ice", "frosted_ice")) {
             Block block = BuiltInRegistries.BLOCK.getValue(minecraft(id));
             if (block != null && player.getStats().getValue(Stats.BLOCK_MINED, block) > 0) iceTypes++;
         }
@@ -455,7 +465,6 @@ public final class AutomaticGoalTracker {
         if (usedHangingSign) progress.complete("PLACE_HANGING_SIGN");
         completeIfItemUsed(player, progress, "painting", "PLACE_PAINTING");
         completeIfItemUsed(player, progress, "goat_horn", "TOOT_GOAT_HORN");
-        completeIfItemUsed(player, progress, "carrot_on_a_stick", "RIDE_PIG");
     }
 
     private static void checkCauldronStatistics(ServerPlayer player, PlayerGoalProgress.Editor progress) {
@@ -500,6 +509,8 @@ public final class AutomaticGoalTracker {
         completeForAdvancement(progress, completedIds, "GET_MOB_KABOB_ADVANCEMENT", "adventure/spear_many_mobs");
         completeForAdvancement(progress, completedIds, "GET_OH_SHINY_ADVANCEMENT", "nether/distract_piglin");
         completeForAdvancement(progress, completedIds, "GET_SNIPER_DUEL_ADVANCEMENT", "adventure/sniper_duel");
+        completeForAdvancement(progress, completedIds,
+                "KILL_PILLAGER_USING_CROSSBOW", "adventure/whos_the_pillager_now");
         completeForAdvancement(progress, completedIds, "GET_STAY_HYDRATED_ADVANCEMENT", "husbandry/place_dried_ghast_in_water");
         completeForAdvancement(progress, completedIds, "GET_THIS_BOAT_HAS_LEGS_ADVANCEMENT", "nether/ride_strider");
         completeForAdvancement(progress, completedIds, "GET_WAX_OFF_ADVANCEMENT", "husbandry/wax_off");
@@ -528,8 +539,12 @@ public final class AutomaticGoalTracker {
         if (player.experienceLevel >= 10) progress.complete("REACH_EXP_LEVEL_10");
         if (player.experienceLevel >= 20) progress.complete("REACH_EXP_LEVEL_20");
         if (player.getFoodData().getFoodLevel() == 0) progress.complete("EMPTY_HUNGER_BAR");
-        if (player.getBlockY() <= player.level().getMinY()) progress.complete("REACH_BEDROCK");
-        if (player.getBlockY() >= player.level().getMaxY() - 1) progress.complete("REACH_HEIGHT_LIMIT");
+        if (player.getY() < 10.0D
+                && player.level().getBlockState(player.blockPosition().below()).is(Blocks.BEDROCK)) {
+            progress.complete("REACH_BEDROCK");
+        }
+        int heightLimit = player.level().dimension() == Level.OVERWORLD ? 320 : 256;
+        if (player.getY() >= heightLimit) progress.complete("REACH_HEIGHT_LIMIT");
         if (player.level().dimension() == Level.NETHER && player.getBlockY() >= 128) progress.complete("REACH_NETHER_ROOF");
         int effects = player.getActiveEffects().size();
         if (effects >= 3) progress.complete("GET_3_STATUS_EFFECTS_AT_ONCE");
@@ -544,8 +559,9 @@ public final class AutomaticGoalTracker {
         });
 
         Entity vehicle = player.getVehicle();
-        if (vehicle instanceof AbstractMinecart) progress.complete("RIDE_MINECART");
-        if (vehicle != null && BuiltInRegistries.ENTITY_TYPE.getKey(vehicle.getType()).getPath().equals("pig")) progress.complete("RIDE_PIG");
+        if (vehicle != null && BuiltInRegistries.ENTITY_TYPE.getKey(vehicle.getType()).getPath().equals("minecart")) {
+            progress.complete("RIDE_MINECART");
+        }
         if (vehicle != null && BuiltInRegistries.ENTITY_TYPE.getKey(vehicle.getType()).getPath().equals("horse")) progress.complete("RIDE_HORSE");
         if (player.getCooldowns().isOnCooldown(new ItemStack(Items.SHIELD))) {
             progress.complete("HAVE_YOUR_SHIELD_DISABLED");
@@ -567,15 +583,6 @@ public final class AutomaticGoalTracker {
             if (leashedNow >= 6) progress.complete("LEASH_6_UNIQUE_MOBS");
             if (leashedNow >= 8) progress.complete("LEASH_8_UNIQUE_MOBS");
             if (leashedTypes.contains("iron_golem")) progress.complete("LEASH_IRON_GOLEM");
-        }
-
-        if (!progress.isComplete("ENRAGE_ZOMBIFIED_PIGLIN")) {
-            boolean angryPiglin = !player.level().getEntitiesOfClass(
-                    ZombifiedPiglin.class,
-                    player.getBoundingBox().inflate(24),
-                    piglin -> piglin.isAngryAt(player, player.level())
-            ).isEmpty();
-            if (angryPiglin) progress.complete("ENRAGE_ZOMBIFIED_PIGLIN");
         }
 
         checkArmor(player, progress);
@@ -625,17 +632,11 @@ public final class AutomaticGoalTracker {
             }
             if (ids.stream().allMatch(id -> id.startsWith("leather_"))) progress.complete("WEAR_LEATHER_ARMOR");
             if (armor.stream().allMatch(ItemStack::isEnchanted)) progress.complete("WEAR_FULL_ENCHANTED_ARMOR");
-            Set<String> materials = new HashSet<>();
-            boolean validArmorMaterials = true;
-            for (String id : ids) {
-                String material = armorMaterial(id);
-                if (material == null) {
-                    validArmorMaterials = false;
-                    break;
-                }
-                materials.add(material);
+            Set<Integer> materials = new HashSet<>();
+            for (int piece = 0; piece < ids.size(); piece++) {
+                materials.add(UNIQUE_ARMOR_ITEMS.get(piece).indexOf(ids.get(piece)));
             }
-            if (validArmorMaterials && materials.size() == 4) progress.complete("WEAR_UNIQUE_ARMOR");
+            if (materials.size() == 4) progress.complete("WEAR_UNIQUE_ARMOR");
             if (ids.stream().allMatch(id -> id.startsWith("leather_"))) {
                 Set<Integer> colors = new HashSet<>();
                 boolean allDyed = true;
@@ -714,13 +715,6 @@ public final class AutomaticGoalTracker {
         if (occupied == 36) progress.complete("FILL_INVENTORY_UNIQUE_ITEMS");
     }
 
-    private static String armorMaterial(String itemId) {
-        for (String material : ARMOR_MATERIALS) {
-            if (itemId.startsWith(material + "_")) return material;
-        }
-        return null;
-    }
-
     private static void completeIfAll(PlayerGoalProgress.Editor progress, Set<String> values, String goal, String... required) {
         if (Set.of(required).stream().allMatch(values::contains)) progress.complete(goal);
     }
@@ -772,7 +766,8 @@ public final class AutomaticGoalTracker {
             Map<String, Integer> counts,
             Set<String> observedItems,
             boolean decoratedShield,
-            boolean copperChest
+            boolean copperChest,
+            boolean exactStackOf64
     ) {
     }
 
