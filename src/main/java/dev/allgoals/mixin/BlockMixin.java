@@ -1,10 +1,9 @@
 package dev.allgoals.mixin;
 
 import dev.allgoals.tracking.GoalProgressService;
+import dev.allgoals.tracking.IceGoalProgress;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,12 +25,7 @@ abstract class BlockMixin {
             if (block == Blocks.SPAWNER || block == Blocks.TRIAL_SPAWNER) {
                 progress.complete("MINE_MOB_SPAWNER");
             }
-            if (state.is(BlockTags.ICE)) {
-                String itemId = BuiltInRegistries.ITEM.getKey(block.asItem()).toString();
-                if (progress.observe("mined_ice_items", itemId) >= 3) {
-                    progress.complete("MINE_3_TYPES_OF_ICE");
-                }
-            }
+            IceGoalProgress.record(progress, block);
         });
     }
 }

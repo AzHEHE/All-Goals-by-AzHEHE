@@ -443,12 +443,12 @@ public final class AutomaticGoalTracker {
             if (block != null && player.getStats().getValue(Stats.BLOCK_MINED, block) > 0) progress.complete(goal);
         });
         if (wasEitherBlockMined(player, "spawner", "trial_spawner")) progress.complete("MINE_MOB_SPAWNER");
-        int iceTypes = 0;
-        for (String id : List.of("ice", "packed_ice", "blue_ice", "frosted_ice")) {
+        for (String id : IceGoalProgress.VALID_TYPES) {
             Block block = BuiltInRegistries.BLOCK.getValue(minecraft(id));
-            if (block != null && player.getStats().getValue(Stats.BLOCK_MINED, block) > 0) iceTypes++;
+            if (block != null && player.getStats().getValue(Stats.BLOCK_MINED, block) > 0) {
+                IceGoalProgress.record(progress, block);
+            }
         }
-        if (iceTypes >= 3) progress.complete("MINE_3_TYPES_OF_ICE");
         if (wasEitherBlockMined(player, "diamond_ore", "deepslate_diamond_ore")) progress.complete("MINE_DIAMOND_ORE");
         if (wasEitherBlockMined(player, "emerald_ore", "deepslate_emerald_ore")) progress.complete("MINE_EMERALD_ORE");
 

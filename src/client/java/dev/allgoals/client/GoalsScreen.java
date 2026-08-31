@@ -6,6 +6,7 @@ import dev.allgoals.goal.GoalIcon;
 import dev.allgoals.goal.VariantGoalIds;
 import dev.allgoals.progress.AllGoalsAttachments;
 import dev.allgoals.progress.PlayerGoalProgress;
+import dev.allgoals.tracking.IceGoalProgress;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Advancement-style All Goals board. A visual node may group several colour
@@ -396,6 +398,8 @@ public final class GoalsScreen extends Screen {
     private static List<ChecklistLine> checklistFor(GoalDefinition goal, PlayerGoalProgress progress) {
         List<String> visited = progress.observations("visited_biomes");
         List<String> eaten = progress.observations("eaten_foods");
+        Set<String> minedIce = IceGoalProgress.canonicalTypes(
+                progress.observations(IceGoalProgress.OBSERVATION_KEY));
         return switch (goal.sourceId()) {
             case "EAT_ALL_SOUPS" -> List.of(
                     new ChecklistLine("Beetroot Soup", eaten.contains("beetroot_soup")),
@@ -414,6 +418,12 @@ public final class GoalsScreen extends Screen {
                     new ChecklistLine("Warped Forest", visited.contains("warped_forest")),
                     new ChecklistLine("Soul Sand Valley", visited.contains("soul_sand_valley")),
                     new ChecklistLine("Basalt Deltas", visited.contains("basalt_deltas"))
+            );
+            case "MINE_3_TYPES_OF_ICE" -> List.of(
+                    new ChecklistLine("Ice", minedIce.contains("ice")),
+                    new ChecklistLine("Packed Ice", minedIce.contains("packed_ice")),
+                    new ChecklistLine("Blue Ice", minedIce.contains("blue_ice")),
+                    new ChecklistLine("Frosted Ice", minedIce.contains("frosted_ice"))
             );
             default -> List.of();
         };
@@ -450,6 +460,7 @@ public final class GoalsScreen extends Screen {
 
     private void drawGoalAmount(GuiGraphicsExtractor graphics, GoalDefinition goal, int x, int y) {
         String amount = switch (goal.sourceId()) {
+            case "MINE_3_TYPES_OF_ICE" -> "3";
             case "KILL_ALL_RAID_MOBS" -> "6";
             case "SPY_10_UNIQUE_MOBS" -> "10";
             case "SPY_20_UNIQUE_MOBS", "KILL_20_ARTHROPOD_MOBS" -> "20";
@@ -772,6 +783,9 @@ public final class GoalsScreen extends Screen {
             case "DEAL_400_DAMAGE" -> Math.min(400, progress.counter("damage_dealt_tenths") / 10) + "/400 damage";
             case "TAKE_200_DAMAGE" -> Math.min(200, progress.counter("damage_taken_tenths") / 10) + "/200 damage";
             case "SPRINT_1_KM" -> Math.min(1000, progress.counter("sprint_cm") / 100) + "/1000 m";
+            case "MINE_3_TYPES_OF_ICE" -> "Ice types mined: "
+                    + Math.min(3, IceGoalProgress.canonicalTypes(
+                            progress.observations(IceGoalProgress.OBSERVATION_KEY)).size()) + "/3";
             case "EAT_5_UNIQUE_FOOD" -> "Unique foods eaten: " + count(progress, "eaten_foods", 5);
             case "EAT_10_UNIQUE_FOOD" -> "Unique foods eaten: " + count(progress, "eaten_foods", 10);
             case "EAT_15_UNIQUE_FOOD" -> "Unique foods eaten: " + count(progress, "eaten_foods", 15);

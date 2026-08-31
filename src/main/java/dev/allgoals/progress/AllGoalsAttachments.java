@@ -27,6 +27,7 @@ public final class AllGoalsAttachments {
             Identifier.fromNamespaceAndPath(AllGoals.MOD_ID, "party_status"),
             builder -> builder
                     .initializer(PartyStatus::solo)
+                    .copyOnDeath()
                     .syncWith(
                             ByteBufCodecs.fromCodecWithRegistries(PartyStatus.CODEC),
                             AttachmentSyncPredicate.targetOnly()
@@ -54,6 +55,7 @@ public final class AllGoalsAttachments {
             Identifier.fromNamespaceAndPath(AllGoals.MOD_ID, "run_mode"),
             builder -> builder
                     .initializer(() -> RunMode.ALL_GOALS)
+                    .copyOnDeath()
                     .syncWith(
                             ByteBufCodecs.fromCodecWithRegistries(RunMode.CODEC),
                             AttachmentSyncPredicate.targetOnly()
@@ -64,6 +66,7 @@ public final class AllGoalsAttachments {
             Identifier.fromNamespaceAndPath(AllGoals.MOD_ID, "run_id"),
             builder -> builder
                     .initializer(() -> "")
+                    .copyOnDeath()
                     .syncWith(
                             ByteBufCodecs.STRING_UTF8,
                             AttachmentSyncPredicate.targetOnly()

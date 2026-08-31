@@ -60,11 +60,18 @@ tasks.register("craftingProgressSelfTest", JavaExec) {
 	mainClass = "dev.allgoals.tracking.CraftingProgressSelfTest"
 }
 
+tasks.register("iceGoalProgressSelfTest", JavaExec) {
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "dev.allgoals.tracking.IceGoalProgressSelfTest"
+}
+
 tasks.named("test") {
 	failOnNoDiscoveredTests = false
 }
 
-check.dependsOn progressSelfTest, versionPolicySelfTest, worldRunIdentitySelfTest, craftingProgressSelfTest
+check.dependsOn progressSelfTest, versionPolicySelfTest, worldRunIdentitySelfTest,
+		craftingProgressSelfTest, iceGoalProgressSelfTest
 
 java {
 	withSourcesJar()
