@@ -10,6 +10,7 @@ import net.minecraft.world.level.storage.LevelResource;
 
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Objects;
 
 final class OverlayRunTimer {
     private static final long NANOS_PER_MILLI = 1_000_000L;
@@ -25,6 +26,8 @@ final class OverlayRunTimer {
     private PartyStatus partyStatus = PartyStatus.solo();
     private long partyStatusReceivedNanos;
     private ClientLevel runIdentity;
+    private String legacyRunKey;
+    private boolean legacyMigrationChecked;
     private PlayerGoalProgress completionCheckedProgress;
     private boolean allGoalsComplete;
 
@@ -35,10 +38,15 @@ final class OverlayRunTimer {
     void tick(Minecraft client) {
         long now = System.nanoTime();
         ClientLevel nextRunIdentity = client.player == null ? null : client.level;
+        String nextRunKey = runKey(client);
         if (runIdentity != nextRunIdentity) {
             runIdentity = nextRunIdentity;
-            switchRun(runKey(client));
+            legacyRunKey = legacyRunKey(client);
+            switchRun(nextRunKey);
+        } else if (!Objects.equals(runKey, nextRunKey)) {
+            switchRun(nextRunKey);
         }
+        migrateLegacyTimer(client);
 
         PartyStatus nextPartyStatus = partyStatus(client);
         if (nextPartyStatus.inParty()) {
@@ -95,6 +103,28 @@ final class OverlayRunTimer {
         wasRunning = false;
         completionCheckedProgress = null;
         allGoalsComplete = false;
+        legacyMigrationChecked = false;
+    }
+
+    private void migrateLegacyTimer(Minecraft client) {
+        if (legacyMigrationChecked || runKey == null) return;
+        legacyMigrationChecked = true;
+        if (legacyRunKey == null || config.hasTimer(runKey) || !hasRecordedProgress(client)) return;
+
+        long previousTimer = config.timerFor(legacyRunKey);
+        if (previousTimer <= 0L) return;
+        elapsedNanos = previousTimer * NANOS_PER_MILLI;
+        persist();
+    }
+
+    private static boolean hasRecordedProgress(Minecraft client) {
+        if (client.player == null) return false;
+        PlayerGoalProgress progress = client.player.getAttachedOrElse(
+                AllGoalsAttachments.PLAYER_PROGRESS, PlayerGoalProgress.empty()
+        );
+        return !progress.completed().isEmpty()
+                || !progress.counters().isEmpty()
+                || !progress.observations().isEmpty();
     }
 
     private void persist() {
@@ -129,6 +159,12 @@ final class OverlayRunTimer {
     }
 
     private static String runKey(Minecraft client) {
+        if (client.player == null || client.level == null) return null;
+        String worldRunId = client.player.getAttachedOrElse(AllGoalsAttachments.RUN_ID, "");
+        return worldRunId.isBlank() ? null : "world:" + worldRunId;
+    }
+
+    private static String legacyRunKey(Minecraft client) {
         if (client.player == null || client.level == null) return null;
         if (client.getSingleplayerServer() != null) {
             Path root = client.getSingleplayerServer().getWorldPath(LevelResource.ROOT)

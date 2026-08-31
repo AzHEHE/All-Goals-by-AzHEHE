@@ -208,6 +208,10 @@ final class OverlayConfig {
         return Math.max(0L, timerMillis.getOrDefault(runKey, 0L));
     }
 
+    boolean hasTimer(String runKey) {
+        return runKey != null && timerMillis.containsKey(runKey);
+    }
+
     void setTimer(String runKey, long milliseconds) {
         if (runKey == null) return;
         timerMillis.remove(runKey);

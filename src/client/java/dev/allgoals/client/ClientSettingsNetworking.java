@@ -3,6 +3,7 @@ package dev.allgoals.client;
 import dev.allgoals.AllGoals;
 import dev.allgoals.network.AnnouncementSettingsPayload;
 import dev.allgoals.network.AudioSettingsPayload;
+import dev.allgoals.network.ModVersionPolicy;
 import dev.allgoals.network.VersionPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,7 +18,7 @@ final class ClientSettingsNetworking {
     static void initialize(OverlayConfig loadedConfig) {
         config = loadedConfig;
         ClientPlayNetworking.registerGlobalReceiver(VersionPayload.TYPE, (payload, context) -> {
-            if (!AllGoals.modVersion().equals(payload.version())) {
+            if (!ModVersionPolicy.matches(AllGoals.modVersion(), payload.version())) {
                 context.player().connection.getConnection().disconnect(Component.literal(
                         "All Goals version mismatch. Client: " + AllGoals.modVersion()
                                 + ", server: " + payload.version()

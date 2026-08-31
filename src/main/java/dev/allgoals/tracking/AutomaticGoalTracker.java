@@ -177,7 +177,6 @@ public final class AutomaticGoalTracker {
     private static final String TOOL_SPEAR_MIGRATION = "tool_sets_include_spear_v1";
     private static final String ADVANCEMENT_COUNT_MIGRATION = "advancement_count_v2";
     private static final String WORKSTATION_ACTION_MIGRATION = "workstation_actions_v1";
-    private static final String CRAFTING_RESULTS_MIGRATION = "crafting_results_v2";
     private static final String CAULDRON_STATS_MIGRATION = "cauldron_stats_v1";
     private static final Set<String> SPYGLASS_ADVANCEMENTS = Set.of(
             "adventure/spyglass_at_parrot", "adventure/spyglass_at_ghast", "adventure/spyglass_at_dragon"
@@ -702,13 +701,7 @@ public final class AutomaticGoalTracker {
     }
 
     private static void repairOldCraftingProgress(PlayerGoalProgress.Editor progress) {
-        if (progress.observations("migrations").contains(CRAFTING_RESULTS_MIGRATION)) return;
-        progress.clearObservations("crafted_items");
-        progress.uncomplete("CRAFT_20_UNIQUE_ITEMS");
-        progress.uncomplete("CRAFT_50_UNIQUE_ITEMS");
-        progress.uncomplete("CRAFT_100_UNIQUE_ITEMS");
-        progress.uncomplete("CRAFT_ARMOR_TRIM");
-        progress.observe("migrations", CRAFTING_RESULTS_MIGRATION);
+        CraftingProgress.migrate(progress);
     }
 
     private static void checkUniqueInventory(ServerPlayer player, PlayerGoalProgress.Editor progress) {

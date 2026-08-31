@@ -178,6 +178,15 @@ public record PlayerGoalProgress(
             return values.isEmpty() ? Set.of() : Collections.unmodifiableSet(values);
         }
 
+        public Set<String> observationKeys() {
+            LinkedHashSet<String> keys = new LinkedHashSet<>(original.observations.keySet());
+            changedObservations.forEach((key, values) -> {
+                if (values.isEmpty()) keys.remove(key);
+                else keys.add(key);
+            });
+            return Collections.unmodifiableSet(keys);
+        }
+
         public Set<String> newlyCompleted() {
             return Set.copyOf(newlyCompleted);
         }

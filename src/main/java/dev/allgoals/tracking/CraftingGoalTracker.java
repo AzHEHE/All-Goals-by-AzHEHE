@@ -11,8 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SmithingTemplateItem;
 
 public final class CraftingGoalTracker {
-    private static final String CRAFTING_RESULTS_MIGRATION = "crafting_results_v2";
-
     private CraftingGoalTracker() {
     }
 
@@ -21,22 +19,9 @@ public final class CraftingGoalTracker {
         boolean[] added = {false};
         int[] total = {0};
         GoalProgressService.update(player, progress -> {
-            if (!progress.observations("migrations").contains(CRAFTING_RESULTS_MIGRATION)) {
-                progress.clearObservations("crafted_items");
-                progress.uncomplete("CRAFT_20_UNIQUE_ITEMS");
-                progress.uncomplete("CRAFT_50_UNIQUE_ITEMS");
-                progress.uncomplete("CRAFT_100_UNIQUE_ITEMS");
-                progress.uncomplete("CRAFT_ARMOR_TRIM");
-                progress.observe("migrations", CRAFTING_RESULTS_MIGRATION);
-            }
-            String playerCrafts = "crafted_items:" + player.getUUID();
-            int before = progress.observationCount(playerCrafts);
-            total[0] = progress.observe(playerCrafts, itemId);
-            added[0] = total[0] > before;
-            progress.setCounterAtLeast("unique_crafts_max", total[0]);
-            if (total[0] >= 20) progress.complete("CRAFT_20_UNIQUE_ITEMS");
-            if (total[0] >= 50) progress.complete("CRAFT_50_UNIQUE_ITEMS");
-            if (total[0] >= 100) progress.complete("CRAFT_100_UNIQUE_ITEMS");
+            CraftingProgress.Result result = CraftingProgress.record(progress, itemId);
+            total[0] = result.total();
+            added[0] = result.added();
             if (crafted.getItem() instanceof SmithingTemplateItem
                     && !crafted.is(net.minecraft.world.item.Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE)) {
                 progress.complete("CRAFT_ARMOR_TRIM");

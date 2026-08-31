@@ -22,7 +22,7 @@ public final class SettingsNetworking {
         ServerPlayNetworking.registerGlobalReceiver(AudioSettingsPayload.TYPE, (payload, context) ->
                 context.player().setAttached(AllGoalsAttachments.AUDIO_SETTINGS, payload.settings()));
         ServerPlayNetworking.registerGlobalReceiver(VersionPayload.TYPE, (payload, context) -> {
-            if (!AllGoals.modVersion().equals(payload.version())) {
+            if (!ModVersionPolicy.matches(AllGoals.modVersion(), payload.version())) {
                 context.player().connection.disconnect(mismatch(payload.version()));
             }
         });

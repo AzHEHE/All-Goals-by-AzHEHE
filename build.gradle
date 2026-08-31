@@ -42,11 +42,29 @@ tasks.register("progressSelfTest", JavaExec) {
 	mainClass = "dev.allgoals.progress.PlayerGoalProgressSelfTest"
 }
 
+tasks.register("versionPolicySelfTest", JavaExec) {
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "dev.allgoals.network.ModVersionPolicySelfTest"
+}
+
+tasks.register("worldRunIdentitySelfTest", JavaExec) {
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "dev.allgoals.world.WorldRunIdentitySelfTest"
+}
+
+tasks.register("craftingProgressSelfTest", JavaExec) {
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "dev.allgoals.tracking.CraftingProgressSelfTest"
+}
+
 tasks.named("test") {
 	failOnNoDiscoveredTests = false
 }
 
-check.dependsOn progressSelfTest
+check.dependsOn progressSelfTest, versionPolicySelfTest, worldRunIdentitySelfTest, craftingProgressSelfTest
 
 java {
 	withSourcesJar()

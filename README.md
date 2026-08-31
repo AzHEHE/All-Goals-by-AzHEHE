@@ -6,7 +6,7 @@
 
 ### An unofficial standalone mod inspired by Draftout
 
-**Current release: V1 (mod version 1.0.0) — for Minecraft Java Edition 26.1.1**
+**Current release: V1 (mod version 1.0.1) — for Minecraft Java Edition 26.1.1**
 
 All Goals brings the goals players know and love from Draftout into one persistent, fully trackable Minecraft world. The challenge is simple: complete every available goal in a single run.
 
@@ -23,7 +23,7 @@ All Goals currently supports Minecraft **26.1.1 only**. In multiplayer, All Goal
 
 ## Versioning
 
-The current goal pool is **All Goals V1**, released as mod version **1.0.0**. Because later versions may add, remove, or adjust goals as Draftout changes, completed runs should always state which All Goals version was used.
+The current goal pool is **All Goals V1**, released as mod version **1.0.1**. Because later versions may add, remove, or adjust goals as Draftout changes, completed runs should always state which All Goals version was used.
 
 Multiplayer requires the exact same mod version on the server and every client. Each published build receives a new mod version, even when it remains part of the V1 goal pool.
 

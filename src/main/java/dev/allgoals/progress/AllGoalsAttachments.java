@@ -60,6 +60,16 @@ public final class AllGoalsAttachments {
                     )
     );
 
+    public static final AttachmentType<String> RUN_ID = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(AllGoals.MOD_ID, "run_id"),
+            builder -> builder
+                    .initializer(() -> "")
+                    .syncWith(
+                            ByteBufCodecs.STRING_UTF8,
+                            AttachmentSyncPredicate.targetOnly()
+                    )
+    );
+
     private AllGoalsAttachments() {
     }
 

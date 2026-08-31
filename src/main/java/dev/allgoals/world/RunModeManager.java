@@ -11,8 +11,10 @@ public final class RunModeManager {
     }
 
     public static void initialize() {
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
-                syncPlayer(handler.getPlayer(), mode(server)));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            RunModeSavedData data = RunModeSavedData.get(server);
+            syncPlayer(handler.getPlayer(), data);
+        });
     }
 
     public static RunMode mode(MinecraftServer server) {
@@ -24,12 +26,15 @@ public final class RunModeManager {
     }
 
     public static void setMode(MinecraftServer server, RunMode mode) {
-        RunModeSavedData.get(server).setMode(mode);
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) syncPlayer(player, mode);
+        RunModeSavedData data = RunModeSavedData.get(server);
+        data.setMode(mode);
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) syncPlayer(player, data);
     }
 
-    private static void syncPlayer(ServerPlayer player, RunMode mode) {
+    private static void syncPlayer(ServerPlayer player, RunModeSavedData data) {
+        RunMode mode = data.mode();
         player.setAttached(AllGoalsAttachments.RUN_MODE, mode);
+        player.setAttached(AllGoalsAttachments.RUN_ID, data.runId());
         if (mode == RunMode.NONE) {
             player.setAttached(AllGoalsAttachments.PLAYER_PROGRESS, PlayerGoalProgress.empty());
         }
